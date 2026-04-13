@@ -8,7 +8,7 @@ export default function NavbarPage() {
                 <div className="flex gap-5">
                     <SignInButton>
                         <button 
-                            className="rounded-md p-1 px-3 text-blue-500 bg-indigo-200 hover:bg-indigo-300
+                            className="rounded-md cursor-pointer p-1 px-3 text-blue-500 bg-indigo-200 hover:bg-indigo-300
                             transition-all ease-in duration-200 hover:scale-110"
                         >
                             SignIn
@@ -17,7 +17,7 @@ export default function NavbarPage() {
 
                     <SignUpButton>
                         <button 
-                            className="rounded-md p-1 px-3 text-blue-500 bg-indigo-200 hover:bg-indigo-300
+                            className="rounded-md cursor-pointer p-1 px-3 text-blue-500 bg-indigo-200 hover:bg-indigo-300
                             transition-all ease-in duration-200 hover:scale-110"
                         >
                             SignUp

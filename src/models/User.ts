@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
 type User = {
-    clerkId: string;
+    userId: string;
     role: "user" | "admin";
 }
 
 const userSchema = new mongoose.Schema<User>({
-    clerkId: {
+    userId: {
         type:String,
         required: true,
         unique: true,
@@ -18,5 +18,5 @@ const userSchema = new mongoose.Schema<User>({
     }
 });
 
-const userModel = mongoose.model("User", userSchema);
-export default userModel;
+const User = mongoose.models.User || mongoose.model("User", userSchema);
+export default User;

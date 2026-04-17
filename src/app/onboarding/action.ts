@@ -6,34 +6,42 @@ import User from "@/models/User";
 import { redirect } from "next/navigation";
 
 export async function setRole(formdata: FormData) {
-    const client = await clerkClient();
+    const client = clerkClient();
     const { userId } = await auth();
+
+    if (!userId) {
+        throw new Error("Unauthorized");
+    }
+
     const role = formdata.get("role") as string;
-    if(!role || typeof role !== "string") {
-        throw new Error("Invalid role");
+
+    if (!role) {
+        throw new Error("Role is required");
     }
 
     const allowedRoles = ["user", "admin"];
-    if(!allowedRoles.includes(role)) {
+    if (!allowedRoles.includes(role)) {
         throw new Error("Invalid role");
     }
 
     await dbConnect();
 
-    if(!userId) {
-        throw new Error("Unauthorized");
+    const userRole = await User.findOne({ userId });
+
+    if (userRole) {
+        return redirect("/dashboard");
     }
-    await User.findOneAndUpdate(
-        { userId },
-        { role },
-        { upsert: true, new:true }
-    );
-    
-    await client.users.updateUserMetadata(userId, {
+
+    await User.create({
+        userId,
+        role,
+    });
+
+    await (await client).users.updateUserMetadata(userId, {
         publicMetadata: {
-            role: role,
+            role,
         },
-    }); 
+    });
 
     return redirect("/dashboard");
 }

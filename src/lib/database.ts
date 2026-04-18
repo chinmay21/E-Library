@@ -1,18 +1,18 @@
-import mongoose from "mongoose"
-
-let isConnected = false;
+import mongoose from "mongoose";
 
 export async function dbConnect() {
-
-    if(isConnected) return;
-
     const url = process.env.DATABASE_URL;
 
-    if(!url) {
+    if (!url) {
         throw new Error("DATABASE_URL is not defined");
     }
 
-    const database = await mongoose.connect(url);
-
-    isConnected = database.connections[0].readyState === 1
+    try {
+        console.log("Connecting to MongoDB...");
+        const conn = await mongoose.connect(url);
+        console.log("MongoDB connected:", conn.connection.host);
+    } catch (error) {
+        console.error("MongoDB connection error:", error);
+        throw error;
+    }
 }

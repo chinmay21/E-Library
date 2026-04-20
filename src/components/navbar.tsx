@@ -13,7 +13,7 @@ export default async function NavbarPage() {
 
                 <Show when="signed-out">
                     <div className="flex gap-5">
-                        <SignInButton>
+                        <SignInButton forceRedirectUrl={"/dashboard"}>
                             <SignInBtn/>
                         </SignInButton>
 

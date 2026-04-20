@@ -1,5 +1,6 @@
-import { clerkMiddleware, createRouteMatcher, auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 const isPublicRoute = createRouteMatcher([
   "/",                 
@@ -7,19 +8,51 @@ const isPublicRoute = createRouteMatcher([
   "/sign-up(.*)",
 ]);
 
-const postSignInRoute = createRouteMatcher([
-  "/dashboard",
-])
+export default clerkMiddleware(async (auth, req) => {
+  const { userId, getToken } = await auth();
+  const token = await getToken({ template: "jwt-role-template" });
 
-clerkMiddleware(async (auth, req) => {
-  if(postSignInRoute(req)) {
-    redirect("/dashboard");
+  if(!token) {
+    return NextResponse.next();
   }
-})
 
-export const proxy = clerkMiddleware(async (auth, req) => {
+  const decoded = jwt.decode(token);
+
+  const url = new URL(req.url);
+
   if (!isPublicRoute(req)) {
     await auth.protect();
+  }
+
+  if(url.pathname.startsWith("/dashboard")) {
+    if(!userId) {
+      return NextResponse.redirect(new URL("/sign-in", req.url));
+    }
+
+
+    if (url.pathname === "/dashboard") {
+      if (!userId) {
+        return NextResponse.next();
+      }
+
+      if (typeof decoded === "object" && decoded !== null) {
+        const payload = decoded as JwtPayload & { role?: string };
+        const role = payload?.role;
+
+        if (!role) {
+          return NextResponse.redirect(new URL("/onboarding", req.url));
+        }
+
+        if (role === "admin") {
+          return NextResponse.redirect(new URL("/dashboard/admin", req.url));
+        }
+
+        if (role === "user") {
+          return NextResponse.redirect(new URL("/dashboard/user", req.url));
+        }
+      }
+      
+    }
   }
 });
 

@@ -19,8 +19,12 @@ const bookSchema = new mongoose.Schema({
     },
     publishedOn:  {
         type: String,
-    }
+    },
+    bookpdf: {
+        type: File,
+        required: true
+    },
 });
 
-const bookModel = mongoose.model("Book", bookSchema);
-export default bookModel;
+const Book = mongoose.models.Book || mongoose.model("Book", bookSchema);
+export default Book;

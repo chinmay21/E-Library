@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react";
+import { createBook } from "@/actions/addBook/action";
 
 
 type ModalProps = {
@@ -27,7 +28,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
         <div className="relative px-20 pt-15 bg-white rounded-2xl h-125 p-6 w-150 shadow-lg">
             <h2 className="text-3xl font-semibold mb-4">Upload your Book pdf here</h2>
 
-            <form className="flex flex-wrap w-screen gap-y-5 pt-5">
+            <form action={createBook} className="flex flex-wrap w-screen gap-y-5 pt-5">
                 <div className="w-full space-x-18">
                     <label htmlFor="title">Enter book title:</label>
                     <input

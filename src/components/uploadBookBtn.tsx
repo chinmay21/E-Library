@@ -12,7 +12,7 @@ export default function UploadBookBtn() {
             <button
                 onClick={() => setIsOpen(true)}
                 className="text-lg text-blue-900 group rounded-lg relative z-10 hover:text-white
-                hover:shadow-blue-900 hover:shadow-lg bg-[#FFC107] p-1 py-2 px-3 w-50 block cursor-pointer
+                hover:shadow-neutral-100 hover:shadow-lg bg-[#FFC107] p-1 py-2 px-3 w-50 block cursor-pointer
                 transition-all ease-in mx-auto mt-15"
             >
                 Upload Book

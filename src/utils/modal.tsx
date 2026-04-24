@@ -15,6 +15,55 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
     
     if(!isOpen) return null;
 
+    const handleSubmit = async(e: React.SyntheticEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        if(!file) return;
+
+        const form = e.currentTarget;
+
+        const signRes = await fetch("/api/sign-cloudinary", {
+            method: "POST",
+        });
+
+        const { timestamp, signature, cloudName, apiKey } = await signRes.json();
+
+        const cloudForm = new FormData();
+        cloudForm.append("file", file);
+        cloudForm.append("api_key", apiKey);
+        cloudForm.append("timestamp", timestamp);
+        cloudForm.append("signature", signature);
+        cloudForm.append("folder", "Codehelp");
+
+        console.log("Step 1: starting upload");
+
+        const uploadRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+        {
+            method: "POST",
+            body: cloudForm,
+        }
+        );
+
+        console.log("Step 2: response received");
+
+        const uploadData = await uploadRes.json();
+
+        console.log("Step 3: uploadData", uploadData);
+
+        const finalForm = new FormData(form);
+        finalForm.set("file", uploadData.secure_url);
+        if (!uploadData.secure_url) {
+            console.error("Upload failed:", uploadData);
+            alert("Upload failed");
+            return;
+        }
+
+        await createBook(finalForm);
+
+        onClose();
+    }
+
     return(
         <div className="fixed inset-0 z-50 flex items-center justify-center">
       
@@ -28,7 +77,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
         <div className="relative px-20 pt-15 bg-white rounded-2xl h-125 p-6 w-150 shadow-lg">
             <h2 className="text-3xl font-semibold mb-4">Upload your Book pdf here</h2>
 
-            <form action={createBook} className="flex flex-wrap w-screen gap-y-5 pt-5">
+            <form onSubmit={handleSubmit} className="flex flex-wrap w-screen gap-y-5 pt-5">
                 <div className="w-full space-x-18">
                     <label htmlFor="title">Enter book title:</label>
                     <input
@@ -86,7 +135,9 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
                 </div>
 
                 <input
-                    className="file:bg-neutral-400 file:mr-20 file:px-3 file:rounded-lg file:hover:cursor-pointer"
+                    className="file:bg-neutral-400 file:hover:bg-black file:hover:text-neutral-50
+                    file:transition-all file:delay-75 file:duration-200 file:mr-20 file:px-3 file:rounded-lg
+                    file:hover:cursor-pointer"
                     type="file"
                     name="file"
                     accept="application/pdf"

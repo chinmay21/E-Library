@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { dbConnect } from "@/lib/database";
 import User from "@/models/User";
 import Book from "@/models/Book";
 import { error } from "console";
@@ -10,6 +11,8 @@ export async function createBook(formdata: FormData) {
     const { userId } = await auth();
 
     if(!userId) return redirect("/sign-in");
+
+    await dbConnect();
 
     const user = await User.findOne({ userId });
 
@@ -26,7 +29,7 @@ export async function createBook(formdata: FormData) {
     const author = formdata.get("author") as string;
     const grossSales = formdata.get("grossSales") as string;
     const publishedOn = formdata.get("publishedOn") as string; 
-    const bookpdf = formdata.get("file") as File;
+    const bookpdf = formdata.get("file") as String;
     const bookData = await Book.create(
         {
             title:title,

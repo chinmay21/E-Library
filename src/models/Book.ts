@@ -21,7 +21,7 @@ const bookSchema = new mongoose.Schema({
         type: String,
     },
     bookpdf: {
-        type: File,
+        type: String,
         required: true
     },
 });

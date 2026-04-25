@@ -38,7 +38,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
         console.log("Step 1: starting upload");
 
         const uploadRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+        `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`,
         {
             method: "POST",
             body: cloudForm,

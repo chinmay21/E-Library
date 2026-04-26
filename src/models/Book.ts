@@ -20,7 +20,7 @@ const bookSchema = new mongoose.Schema({
     publishedOn:  {
         type: String,
     },
-    bookpdf: {
+    bookPdf: {
         type: String,
         required: true
     },

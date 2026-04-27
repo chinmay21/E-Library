@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { createBook } from "@/actions/addBook/action";
+import { storage } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 
 type ModalProps = {
@@ -11,58 +13,77 @@ type ModalProps = {
 
 export default function Modal({ isOpen, onClose }: ModalProps) {
 
-    const [file, setFile] = useState<File | null>(null);
     
     if(!isOpen) return null;
 
-    const handleSubmit = async(e: React.SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const uploadPdf = async function (file: File) {
+        const fileRef = ref(storage, `books/${Date.now()}-${file.name}`);
 
-        if(!file) return;
+        await uploadBytes(fileRef, file);
 
-        const form = e.currentTarget;
+        const url = await getDownloadURL(fileRef);
 
-        const signRes = await fetch("/api/sign-cloudinary", {
-            method: "POST",
-        });
+        return url;
+    }
 
-        const { timestamp, signature, cloudName, apiKey } = await signRes.json();
+    const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-        const cloudForm = new FormData();
-        cloudForm.append("file", file);
-        cloudForm.append("api_key", apiKey);
-        cloudForm.append("timestamp", timestamp);
-        cloudForm.append("signature", signature);
-        cloudForm.append("folder", "Codehelp");
+    const form = e.currentTarget;
 
-        console.log("Step 1: starting upload");
+    const formData = new FormData(form);
 
-        const uploadRes = await fetch(
+    const pdfFile = formData.get("file") as File | null;
+
+    if (!pdfFile || pdfFile.size === 0) {
+        alert("Please select a PDF file");
+        return;
+    }
+
+    // Upload PDF to Firebase
+    const pdfUrl = await uploadPdf(pdfFile);
+
+    // Continue your Cloudinary upload (for image)
+    const signRes = await fetch("/api/sign-cloudinary", {
+        method: "POST",
+    });
+
+    const { timestamp, signature, cloudName, apiKey } = await signRes.json();
+
+    const cloudForm = new FormData();
+    cloudForm.append("api_key", apiKey);
+    cloudForm.append("timestamp", timestamp);
+    cloudForm.append("signature", signature);
+    cloudForm.append("folder", "Codehelp");
+
+    const imageFile = formData.get("book-cover") as File;
+
+    cloudForm.append("file", imageFile); // ❗ THIS WAS MISSING
+
+    const uploadRes = await fetch(
         `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`,
         {
             method: "POST",
             body: cloudForm,
         }
-        );
+    );
 
-        console.log("Step 2: response received");
+    const uploadData = await uploadRes.json();
 
-        const uploadData = await uploadRes.json();
-
-        console.log("Step 3: uploadData", uploadData);
-
-        const finalForm = new FormData(form);
-        finalForm.set("file", uploadData.secure_url);
-        if (!uploadData.secure_url) {
-            console.error("Upload failed:", uploadData);
-            alert("Upload failed");
-            return;
-        }
-
-        await createBook(finalForm);
-
-        onClose();
+    if (!uploadData.secure_url) {
+        alert("Image upload failed");
+        return;
     }
+
+    // Final form
+    const finalForm = new FormData(form);
+    finalForm.set("bookCover", uploadData.secure_url);
+    finalForm.set("bookPdf", pdfUrl); // ✅ include Firebase PDF URL
+
+    await createBook(finalForm);
+
+    onClose();
+};
 
     return(
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -74,7 +95,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
         />
 
         {/* Modal Content */}
-        <div className="relative px-20 pt-15 bg-white rounded-2xl h-125 p-6 w-150 shadow-lg">
+        <div className="relative px-20 pt-15 bg-white rounded-2xl h-135 p-6 w-150 shadow-lg">
             <h2 className="text-3xl font-semibold mb-4">Upload your Book pdf here</h2>
 
             <form onSubmit={handleSubmit} className="flex flex-wrap w-screen gap-y-5 pt-5">
@@ -134,23 +155,33 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
                     />
                 </div>
 
-                <input
-                    className="file:bg-neutral-400 file:hover:bg-black file:hover:text-neutral-50
-                    file:transition-all file:delay-75 file:duration-200 file:mr-20 file:px-3 file:rounded-lg
-                    file:hover:cursor-pointer"
-                    type="file"
-                    name="file"
-                    accept="application/pdf"
-                    onChange={(e) => {
-                        if(e.target.files) {
-                            setFile(e.target.files[0]);
-                        }
-                    }}
-                />
+                <div className="w-full space-x-5">
+                    <label htmlFor="book-cover">Submit Book Cover:</label>
+                    <input
+                        className="file:bg-neutral-400 file:hover:bg-black file:hover:text-neutral-50
+                        file:transition-all file:delay-75 file:duration-200 file:mr-20 file:px-3 file:rounded-lg
+                        file:hover:cursor-pointer"
+                        type="file"
+                        name="book-cover"
+                        accept="image/*"
+                    />
+                </div>       
+
+                <div className="w-full space-x-10">
+                    <label htmlFor="book-cover">Submit Book Pdf:</label>
+                    <input
+                        className="file:bg-neutral-400 file:hover:bg-black file:hover:text-neutral-50
+                        file:transition-all file:delay-75 file:duration-200 file:mr-20 file:px-3 file:rounded-lg
+                        file:hover:cursor-pointer"
+                        type="file"
+                        name="file"
+                        accept="application/pdf"
+                    /> 
+                </div>
                 
                 <button
                     type="submit"
-                    className="text-lg text-blue-900 group rounded-lg relative right-179 z-10 hover:text-white
+                    className="text-lg text-blue-900 group rounded-lg relative right-140 bottom-10 z-10 hover:text-white
                     hover:shadow-blue-900 hover:shadow-lg bg-[#FFC107] p-1 py-2 px-3 w-50 block cursor-pointer
                     transition-all ease-in mx-auto mt-15"
                 >

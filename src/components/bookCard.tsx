@@ -32,6 +32,7 @@ export async function BookCards() {
                             <p>{book.author}</p>
                             <p>{book.grossSales}</p>
                             <p>{book?.publishedOn}</p>
+                            <img src={`${book.bookCover}`} width={100} height={100}/>
                             <iframe src={`${book.bookPdf}`} width={100} height={100}></iframe>
                         </div>
                     </div>

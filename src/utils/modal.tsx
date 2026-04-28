@@ -1,10 +1,6 @@
 "use client"
 
-import { useState } from "react";
 import { createBook } from "@/actions/addBook/action";
-import { storage } from "@/lib/firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-
 
 type ModalProps = {
     isOpen: boolean;
@@ -13,77 +9,106 @@ type ModalProps = {
 
 export default function Modal({ isOpen, onClose }: ModalProps) {
 
-    
     if(!isOpen) return null;
 
-    const uploadPdf = async function (file: File) {
-        const fileRef = ref(storage, `books/${Date.now()}-${file.name}`);
+    // ✅ Upload PDF using Uploadcare
+    const uploadPdf = async (file: File) => {
+        const formData = new FormData();
+        const publicKey = process.env.NEXT_PUBLIC_UPLOADCARE_PUBLIC_KEY;
+        const secretKey = process.env.UPLOADCARE_SECRET_KEY;
 
-        await uploadBytes(fileRef, file);
+        formData.append("UPLOADCARE_PUB_KEY", publicKey!); // ← replace this
+        formData.append("file", file);
 
-        const url = await getDownloadURL(fileRef);
+        const res = await fetch("https://upload.uploadcare.com/base/", {
+            method: "POST",
+            body: formData,
+        });
 
-        return url;
-    }
+        const data = await res.json(); // { file: "uuid" }
+
+        if (!data.file) {
+            throw new Error("Uploadcare upload failed");
+        }
+
+        console.log("UPLOADCARE RESPONSE:", data);
+
+        const backendRes = await fetch(`/api/uploadcare-file-info?uuid=${data.file}`);
+        const fileInfo = await backendRes.json();
+
+        return fileInfo.cdn_url; // <-- return it!
+        
+    };
 
     const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
+        e.preventDefault();   
 
-    const form = e.currentTarget;
+        const form = e.currentTarget;
+        const formData = new FormData(form);
 
-    const formData = new FormData(form);
+        const pdfFile = formData.get("file") as File | null;
 
-    const pdfFile = formData.get("file") as File | null;
-
-    if (!pdfFile || pdfFile.size === 0) {
-        alert("Please select a PDF file");
-        return;
-    }
-
-    // Upload PDF to Firebase
-    const pdfUrl = await uploadPdf(pdfFile);
-
-    // Continue your Cloudinary upload (for image)
-    const signRes = await fetch("/api/sign-cloudinary", {
-        method: "POST",
-    });
-
-    const { timestamp, signature, cloudName, apiKey } = await signRes.json();
-
-    const cloudForm = new FormData();
-    cloudForm.append("api_key", apiKey);
-    cloudForm.append("timestamp", timestamp);
-    cloudForm.append("signature", signature);
-    cloudForm.append("folder", "Codehelp");
-
-    const imageFile = formData.get("book-cover") as File;
-
-    cloudForm.append("file", imageFile); // ❗ THIS WAS MISSING
-
-    const uploadRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`,
-        {
-            method: "POST",
-            body: cloudForm,
+        if (!pdfFile || pdfFile.size === 0) {
+            alert("Please select a PDF file");
+            return;
         }
-    );
 
-    const uploadData = await uploadRes.json();
 
-    if (!uploadData.secure_url) {
-        alert("Image upload failed");
-        return;
-    }
 
-    // Final form
-    const finalForm = new FormData(form);
-    finalForm.set("bookCover", uploadData.secure_url);
-    finalForm.set("bookPdf", pdfUrl); // ✅ include Firebase PDF URL
+        // ✅ Upload PDF to Uploadcare
+        const pdfUrl = await uploadPdf(pdfFile);
+        console.log("PDF URL:", pdfUrl);
 
-    await createBook(finalForm);
+        // ✅ Cloudinary (image upload)
+        const signRes = await fetch("/api/sign-cloudinary", {
+            method: "POST",
+        });
 
-    onClose();
-};
+        const { timestamp, signature, cloudName, apiKey } = await signRes.json();
+
+        const cloudForm = new FormData();
+        cloudForm.append("api_key", apiKey);
+        cloudForm.append("timestamp", timestamp);
+        cloudForm.append("signature", signature);
+        cloudForm.append("folder", "Codehelp");
+
+        const imageFile = formData.get("book-cover") as File;
+
+        cloudForm.append("file", imageFile);
+
+        const uploadRes = await fetch(
+            `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, // ✅ FIXED
+            {
+                method: "POST",
+                body: cloudForm,
+            }
+        );
+
+        const uploadData = await uploadRes.json();
+
+        if (!uploadData.secure_url) {
+            alert("Image upload failed");
+            return;
+        }
+
+        // ✅ Final form
+        const finalForm = new FormData();
+        finalForm.set("title", formData.get("title") as string);
+        finalForm.set("description", formData.get("description") as string);
+        finalForm.set("author", formData.get("author") as string);
+        finalForm.set("grossSales", formData.get("grossSales") as string);
+        finalForm.set("publishedOn", formData.get("publishedOn") as string);
+
+        finalForm.set("bookCover", uploadData.secure_url);
+        finalForm.set("bookPdf", pdfUrl!);
+
+        console.log("THIS IS FINALFORM:", finalForm);
+        console.log("THIS IS PDFURL:", pdfUrl);
+
+        await createBook(finalForm);
+
+        onClose();
+    };
 
     return(
         <div className="fixed inset-0 z-50 flex items-center justify-center">

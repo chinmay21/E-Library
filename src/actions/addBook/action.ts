@@ -29,7 +29,8 @@ export async function createBook(formdata: FormData) {
     const author = formdata.get("author") as string;
     const grossSales = formdata.get("grossSales") as string;
     const publishedOn = formdata.get("publishedOn") as string; 
-    const bookpdf = formdata.get("file") as String;
+    const bookPdf = formdata.get("bookPdf") as string;
+    const bookCover = formdata.get("bookCover") as string;
     const bookData = await Book.create(
         {
             title:title,
@@ -37,7 +38,8 @@ export async function createBook(formdata: FormData) {
             author:author,
             grossSales:grossSales,
             publishedOn:publishedOn,
-            bookpdf:bookpdf,
+            bookPdf:bookPdf,
+            bookCover:bookCover,
         }
     )
 

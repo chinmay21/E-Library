@@ -1,6 +1,8 @@
 "use client"
 
 import { createBook } from "@/actions/addBook/action";
+import UploadPdf from "@/components/uploadPdf";
+import { useState } from "react";
 
 type ModalProps = {
     isOpen: boolean;
@@ -11,52 +13,20 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
 
     if(!isOpen) return null;
 
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+
     // ✅ Upload PDF using Uploadcare
-    const uploadPdf = async (file: File) => {
-        const formData = new FormData();
-        const publicKey = process.env.NEXT_PUBLIC_UPLOADCARE_PUBLIC_KEY;
-        const secretKey = process.env.UPLOADCARE_SECRET_KEY;
-
-        formData.append("UPLOADCARE_PUB_KEY", publicKey!); // ← replace this
-        formData.append("file", file);
-
-        const res = await fetch("https://upload.uploadcare.com/base/", {
-            method: "POST",
-            body: formData,
-        });
-
-        const data = await res.json(); // { file: "uuid" }
-
-        if (!data.file) {
-            throw new Error("Uploadcare upload failed");
-        }
-
-        console.log("UPLOADCARE RESPONSE:", data);
-
-        const backendRes = await fetch(`/api/uploadcare-file-info?uuid=${data.file}`);
-        const fileInfo = await backendRes.json();
-
-        return fileInfo.cdn_url; // <-- return it!
-        
-    };
-
     const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();   
 
         const form = e.currentTarget;
         const formData = new FormData(form);
 
-        const pdfFile = formData.get("file") as File | null;
-
-        if (!pdfFile || pdfFile.size === 0) {
-            alert("Please select a PDF file");
+        if (!pdfUrl) {
+            alert("Please upload a PDF file");
             return;
         }
-
-
-
-        // ✅ Upload PDF to Uploadcare
-        const pdfUrl = await uploadPdf(pdfFile);
+       
         console.log("PDF URL:", pdfUrl);
 
         // ✅ Cloudinary (image upload)
@@ -192,16 +162,17 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
                     />
                 </div>       
 
-                <div className="w-full space-x-10">
-                    <label htmlFor="book-cover">Submit Book Pdf:</label>
-                    <input
+                <div className="w-full space-x-10 flex items-center">
+                    <label htmlFor="UploadPdf">Submit Book Pdf:</label>
+                    {/* <input
                         className="file:bg-neutral-400 file:hover:bg-black file:hover:text-neutral-50
                         file:transition-all file:delay-75 file:duration-200 file:mr-20 file:px-3 file:rounded-lg
                         file:hover:cursor-pointer"
                         type="file"
                         name="file"
                         accept="application/pdf"
-                    /> 
+                    />  */}
+                    <UploadPdf onUpload={setPdfUrl}/>
                 </div>
                 
                 <button

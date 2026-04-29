@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.12",
+    "@uploadcare/react-uploader": "^1.15.0",
     "cloudinary": "^2.9.0",
     "dotenv": "^17.4.2",
     "firebase": "^12.12.1",

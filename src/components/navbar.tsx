@@ -2,6 +2,9 @@ import { SignInButton, SignUpButton, Show } from "@clerk/nextjs";
 import { SignOutButton } from "./signOutButton"
 import { SignInBtn } from "./signInButton";
 import { SignUpBtn } from "./signUpButton";
+import DashboardButton from "./dashboardButton";
+
+
 export default async function NavbarPage() {
 
     return(
@@ -9,6 +12,7 @@ export default async function NavbarPage() {
             <div className="bg-blue-500 h-15 flex justify-end pr-55 items-center">
                 <Show when="signed-in">
                     <SignOutButton/>
+                    <DashboardButton/>
                 </Show>
 
                 <Show when="signed-out">

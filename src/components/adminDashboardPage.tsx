@@ -5,9 +5,14 @@ import { redirect } from "next/navigation";
 import UploadBookBtn from "@/components/uploadBookBtn";
 
 export default function AdminDashboardPage() {
-    const { isSignedIn, isLoaded } = useUser();
+    const { isSignedIn, user, isLoaded } = useUser();
 
     if(!isLoaded) return <div>Loading...</div>
+
+    if(user?.publicMetadata.role !== "admin" ) {
+        alert("Unauthorized User");
+        redirect("/");
+    }
 
     if(!isSignedIn) {
         redirect("/sign-in");

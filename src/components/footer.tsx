@@ -1,55 +1,69 @@
-import { FaFacebook } from "react-icons/fa";
-import { FaInstagram } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa";
 import { FaSquareXTwitter } from "react-icons/fa6";
-import { FaLinkedin } from "react-icons/fa";
 
 export default function FooterPage() {
-    return(
-        <div>
-            <div className="bg-blue-950 w-screen h-fit">
-                <div className="flex flex-wrap w-[75%] justify-between mx-auto pt-15">
-                    <div className="flex flex-col w-[45%]">
-                        <div className="flex flex-col gap-2">
-                            <h2 className="text-white font-semibold text-3xl">Company</h2>
-                            <div className="bg-pink-800 w-20 h-0.5"></div>
-                        </div>
-                        <div className="mt-5 space-y-3">
-                            <p className="text-neutral-400 w-fit text-lg hover:text-white hover:cursor-pointer hover:translate-x-3 transition-transform">About Us</p>
-                            <p className="text-neutral-400 w-fit text-lg hover:text-white hover:cursor-pointer hover:translate-x-3 transition-transform">Our Services</p>
-                            <p className="text-neutral-400 w-fit text-lg hover:text-white hover:cursor-pointer hover:translate-x-3 transition-transform">Privacy Policy</p>
-                            <p className="text-neutral-400 w-fit text-lg hover:text-white hover:cursor-pointer hover:translate-x-3 transition-transform">Affiliate Program</p>
-                        </div>
-                    </div>
+  return (
+    <footer className="bg-blue-950 text-white">
+      <div className="max-w-6xl mx-auto px-4 md:px-10 py-12">
 
-                    <div className="bg-pink-800 h-52 w-1"></div>
+        {/* Grid Layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
 
-                    <div className="flex flex-col w-[45%] pl-20">
-                        <div className="flex flex-col gap-2">
-                            <h2 className="text-white font-semibold text-3xl">Get Help</h2>
-                            <div className="bg-pink-800 w-20 h-0.5"></div>
-                        </div>
-                        <div className="mt-5 space-y-3">
-                            <p className="text-neutral-400 w-fit text-lg hover:text-white hover:cursor-pointer hover:translate-x-3 transition-transform">FAQ</p>
-                            <p className="text-neutral-400 w-fit text-lg hover:text-white hover:cursor-pointer hover:translate-x-3 transition-transform">Shipping</p>
-                            <p className="text-neutral-400 w-fit text-lg hover:text-white hover:cursor-pointer hover:translate-x-3 transition-transform">Returns</p>
-                            <p className="text-neutral-400 w-fit text-lg hover:text-white hover:cursor-pointer hover:translate-x-3 transition-transform">Book Status</p>
-                        </div>
-                    </div>
+          {/* Company */}
+          <div>
+            <h2 className="text-2xl md:text-3xl font-semibold">Company</h2>
+            <div className="bg-pink-800 w-16 h-0.5 mt-2 mb-4"></div>
 
-                    <div className="flex flex-col mt-15 w-[45%] pb-15">
-                        <div className="flex flex-col gap-2">
-                            <h2 className="text-white font-semibold text-3xl">Follow Us</h2>
-                            <div className="bg-pink-800 w-20 h-0.5"></div>
-                        </div>
-                        <div className="flex mt-5 space-x-3">
-                            <p className="text-neutral-400 w-fit text-4xl hover:text-white hover:cursor-pointer transition-all"><FaFacebook/></p>
-                            <p className="text-neutral-400 w-fit text-4xl hover:text-white hover:cursor-pointer transition-all"><FaInstagram/></p>
-                            <p className="text-neutral-400 w-fit text-4xl hover:text-white hover:cursor-pointer transition-all"><FaSquareXTwitter/></p>
-                            <p className="text-neutral-400 w-fit text-4xl hover:text-white hover:cursor-pointer transition-all"><FaLinkedin/></p>
-                        </div>
-                    </div>
-                </div>
+            <div className="space-y-3">
+              {["About Us", "Our Services", "Privacy Policy", "Affiliate Program"].map((item) => (
+                <p
+                  key={item}
+                  className="text-neutral-400 text-sm md:text-lg hover:text-white hover:translate-x-2 transition-all cursor-pointer w-fit"
+                >
+                  {item}
+                </p>
+              ))}
             </div>
+          </div>
+
+          {/* Help */}
+          <div>
+            <h2 className="text-2xl md:text-3xl font-semibold">Get Help</h2>
+            <div className="bg-pink-800 w-16 h-0.5 mt-2 mb-4"></div>
+
+            <div className="space-y-3">
+              {["FAQ", "Shipping", "Returns", "Book Status"].map((item) => (
+                <p
+                  key={item}
+                  className="text-neutral-400 text-sm md:text-lg hover:text-white hover:translate-x-2 transition-all cursor-pointer w-fit"
+                >
+                  {item}
+                </p>
+              ))}
+            </div>
+          </div>
+
+          {/* Social */}
+          <div>
+            <h2 className="text-2xl md:text-3xl font-semibold">Follow Us</h2>
+            <div className="bg-pink-800 w-16 h-0.5 mt-2 mb-4"></div>
+
+            <div className="flex gap-4 mt-4 text-2xl md:text-3xl">
+              <FaFacebook className="text-neutral-400 hover:text-white cursor-pointer transition-all" />
+              <FaInstagram className="text-neutral-400 hover:text-white cursor-pointer transition-all" />
+              <FaSquareXTwitter className="text-neutral-400 hover:text-white cursor-pointer transition-all" />
+              <FaLinkedin className="text-neutral-400 hover:text-white cursor-pointer transition-all" />
+            </div>
+          </div>
+
         </div>
-    );
+
+        {/* Bottom line */}
+        <div className="mt-10 border-t border-neutral-700 pt-5 text-center text-sm text-neutral-400">
+          © {new Date().getFullYear()} E-Library. All rights reserved.
+        </div>
+
+      </div>
+    </footer>
+  );
 }

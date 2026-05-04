@@ -13,6 +13,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
   if (!isOpen) return null;
 
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,6 +68,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
     finalForm.set("bookPdf", pdfUrl!);
 
     await createBook(finalForm);
+    setLoading(false);
     onClose();
   };
 
@@ -83,7 +85,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
       <div
         className="
         relative bg-white rounded-2xl shadow-lg
-        w-full max-w-[600px] md:w-150
+        w-full max-w-150 md:w-150
         h-auto md:h-135
         max-h-[90vh] overflow-y-auto
         px-4 md:px-20 pt-10 md:pt-15 p-6
@@ -166,6 +168,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
           {/* Button fix */}
           <button
             type="submit"
+            onClick={() => setLoading(true)}
             className="
             text-lg text-blue-900 group rounded-lg relative z-10 hover:text-white
             hover:shadow-blue-900 hover:shadow-lg
@@ -174,7 +177,9 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
             md:right-140 md:bottom-10
           "
           >
-            Submit
+            {
+              loading ? (<p>Submitting...</p>) : (<p>Submit</p>)
+            }
             <div className="absolute bg-black right-0 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-150 ease-in top-0 h-11 w-50 rounded-lg -z-5"></div>
           </button>
         </form>

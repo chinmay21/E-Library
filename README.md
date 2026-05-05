@@ -98,20 +98,20 @@ http://localhost:3000
 
 📷 Screenshots
 🏠 Home Page
-![Home Page](./public/assets/home-page)
+![Home Page](./public/assets/home-page.png)
 
 
 📊 Dashboard
-![Dashboard](./public/assets/admin-dashboard)
+![Dashboard](./public/assets/admin-dashboard.png)
 
 📤 Upload Book
-![Upload Book Modal](./public/assets/upload-book-modal)
+![Upload Book Modal](./public/assets/upload-book-modal.png)
 
 🔐 Sign In
-![Sign In](./public/assets/sign-in-page)
+![Sign In](./public/assets/sign-in-page.png)
 
 📝 Sign Up
-![Sign Up](./public/assets/sign-up-page)
+![Sign Up](./public/assets/sign-up-page.png)
 
 ## 🤝 Contributing
 

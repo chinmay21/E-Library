@@ -2,7 +2,7 @@ import Book from "@/models/Book";
 import { dbConnect } from "@/lib/database";
 import { NextResponse } from "next/server";
 
-export default async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
    try{
         const { id } = params;
         

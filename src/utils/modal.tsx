@@ -1,15 +1,18 @@
 "use client";
 
 import { createBook } from "@/actions/addBook/action";
+import { BookType } from "@/components/bookCard";
 import UploadPdf from "@/components/uploadPdf";
 import { useState } from "react";
 
 type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  selectedBook: BookType | null;
+  mode: "create" | "edit"
 };
 
-export default function Modal({ isOpen, onClose }: ModalProps) {
+export default function Modal({ isOpen, onClose, selectedBook, mode }: ModalProps) {
   if (!isOpen) return null;
 
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -89,10 +92,13 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
         h-auto md:h-135
         max-h-[90vh] overflow-y-auto
         px-4 md:px-20 pt-10 md:pt-15 p-6
+        overflow-x-hidden
       "
       >
         <h2 className="text-2xl md:text-3xl font-semibold mb-4">
-          Upload your Book pdf here
+          {
+            mode === "edit" ? ("Update Book") : ("Create Book")
+          }
         </h2>
 
         <form

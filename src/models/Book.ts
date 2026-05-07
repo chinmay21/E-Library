@@ -28,6 +28,10 @@ const bookSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    userId: {
+        type: mongoose.Types.ObjectId,
+        ref: "User",
+    }
 });
 
 const Book = mongoose.models.Book || mongoose.model("Book", bookSchema);

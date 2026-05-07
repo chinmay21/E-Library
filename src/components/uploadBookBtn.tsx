@@ -24,6 +24,8 @@ export default function UploadBookBtn() {
             <Modal
                 isOpen={isOpen}
                 onClose={() => setIsOpen(false)}
+                selectedBook={null}
+                mode="create"
             />
         </div>
     )

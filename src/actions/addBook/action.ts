@@ -40,6 +40,7 @@ export async function createBook(formdata: FormData) {
             publishedOn:publishedOn,
             bookPdf:bookPdf,
             bookCover:bookCover,
+            userId:user._id,
         }
     )
 
